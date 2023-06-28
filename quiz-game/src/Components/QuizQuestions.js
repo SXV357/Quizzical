@@ -1,7 +1,7 @@
 import React from "react";
 import he from "he";
 
-export default function QuizQuestions({checkAnswers, question, pick, id }) {
+export default function QuizQuestions({checkAnswers, question, pick, id, dark }) {
   const styles = (answer_choice, index) => {
     return checkAnswers
       ? question.correct_answer === answer_choice
@@ -26,7 +26,7 @@ export default function QuizQuestions({checkAnswers, question, pick, id }) {
 
   return (
     <div className="question-and-answer-container">
-      <h2 className="quiz-question">{he.decode(question.question)}</h2>
+      <h2 style = {{color: dark ? "white" : "#293264"}} className="quiz-question">{he.decode(question.question)}</h2>
       <div className="answers">{answer_choices}</div>
     </div>
   );

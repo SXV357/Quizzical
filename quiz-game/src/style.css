@@ -6,7 +6,6 @@
   }
   
   .intro-page{
-    background-color: #F5F7FB;
     width: 100vw;
     height: 100vh;
   }
@@ -28,7 +27,6 @@
     font-weight: 400;
     font-size: 16px;
     line-height: 19px;
-    color: #293264;
     transform: scale(2.1);
     max-width: 425px;
     text-align: center;
@@ -160,3 +158,75 @@
   .quiz-question{
     color: #293264;
   }  
+
+  main.dark{
+    background-color: #000;
+    color: #fff;
+  }
+
+  /* Toggler */
+.toggler {
+  display: flex;
+  align-items: center;
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin-right: 50px;
+  margin-top: 25px;
+}
+
+.toggler p {
+  font-size: 1.2rem;
+  font-weight: 600;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.toggler--slider {
+  width: 25px;
+  height: 13px;
+  background-color: #2B283A;
+  border-radius: 2rem;
+  margin-inline: 7px;
+  cursor: pointer;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  border: 1px solid black;
+  box-sizing: content-box;
+}
+
+.toggler--slider {
+  border-color: white;
+  background-color: #F5F5F5;
+}
+
+.toggler--slider--circle {
+  height: 13px;
+  width: 13px;
+  background-color: white;
+  border-radius: 50%;
+}
+
+main.dark .toggler--slider--circle {
+  background-color: black;
+}
+
+.toggler--light {
+  color: #2B283A;
+}
+
+main.dark .toggler--light {
+  color: #918E9B;
+}
+
+.toggler--dark {
+  color: #D5D4D8;
+}
+
+main.dark .toggler-dark {
+  color: #FFFFFF;
+}
+
+main.dark .toggler--slider {
+  justify-content: flex-end;
+}

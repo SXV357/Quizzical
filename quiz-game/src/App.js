@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import LoadingPage from "./Components/LoadingPage";
 import QuizQuestions from "./Components/QuizQuestions";
 import yellowBlob from "./Loading Page Images/yellowBlob.png"
+import useDarkMode from "./useDarkMode";
 
 export default function App() {
   const [startGame, setStartGame] = useState(false);
@@ -12,6 +13,7 @@ export default function App() {
   const [time, setTime] = useState(0);
   const [startTimer, setStartTimer] = useState(false);
   const [selectedDifficulty, setSelectedDifficulty] = useState("easy")
+  const [dark, toggleDarkMode] = useDarkMode()
   const [bestTime, setBestTime] = useState(
     localStorage.getItem("bestTime") || 0
   );
@@ -37,7 +39,7 @@ export default function App() {
         });
       setBestTime(bestTime);
     }
-  }, [startGame]);
+  }, [startGame, bestTime, selectedDifficulty]);
 
   useEffect(() => {
     let timer;
@@ -73,7 +75,7 @@ export default function App() {
       );
       localStorage.setItem("bestTime", time / 1000);
     }
-  }, [checkAnswers]);
+  }, [checkAnswers, questions, time]);
 
   function chooseAnswer(event, unique_question_id, unique_answer_id) {
     setQuestions((prevQuestions) => {
@@ -86,6 +88,7 @@ export default function App() {
   const questionsAndAnswers = questions.map((question, index) => {
     return (
       <QuizQuestions
+        dark = {dark}
         question={question}
         checkAnswers={checkAnswers}
         pick={chooseAnswer}
@@ -171,7 +174,7 @@ export default function App() {
   }
   
   return (
-    <div>
+    <main className = {dark ? "dark" : ""}>
       {startGame && (
         <div className="quiz">
           {displayTimer()}
@@ -183,6 +186,7 @@ export default function App() {
       )}
       {!startGame && (
         <LoadingPage 
+            dark = {dark}
             gameOver = {gameOver} 
             timeTaken={bestTime} 
             begin={() => setStartGame(true)} 
@@ -191,6 +195,13 @@ export default function App() {
             setDifficulty = {(e) => setSelectedDifficulty(e.target.value)}
         />)}
       <img className="yellow-blob-2" src= {yellowBlob} />
-    </div>
+      <div className="toggler">
+        <p className="toggler--light">Light</p>
+          <div className="toggler--slider" onClick={toggleDarkMode}>
+              <div className="toggler--slider--circle"></div>
+          </div>
+        <p className="toggler--dark">Dark</p>
+      </div>
+    </main>
   );
 }
