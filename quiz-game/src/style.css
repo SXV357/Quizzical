@@ -42,13 +42,13 @@
   }
   
   .intro-page-button{
-    background-color: #293264;
-    color: #fff;
     width: 200px;
     height: 60px;
     border-radius: 15px;
     cursor: pointer;
-    font-size: 1.5em;
+    font-size: 1.1em;
+    padding: 10px;
+    font-weight: bold;
   }
   
   .yellow-blob{
@@ -223,8 +223,8 @@ main.dark .toggler--light {
   color: #D5D4D8;
 }
 
-main.dark .toggler-dark {
-  color: #FFFFFF;
+main.dark .toggler--dark {
+  color: #000;
 }
 
 main.dark .toggler--slider {

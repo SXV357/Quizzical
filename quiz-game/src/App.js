@@ -3,6 +3,7 @@ import LoadingPage from "./Components/LoadingPage";
 import QuizQuestions from "./Components/QuizQuestions";
 import yellowBlob from "./Loading Page Images/yellowBlob.png"
 import useDarkMode from "./useDarkMode";
+import SelectPreferences from "./Components/SelectPreferences";
 
 export default function App() {
   const [startGame, setStartGame] = useState(false);
@@ -12,15 +13,26 @@ export default function App() {
   const [gameOver, setGameOver] = useState(false);
   const [time, setTime] = useState(0);
   const [startTimer, setStartTimer] = useState(false);
-  const [selectedDifficulty, setSelectedDifficulty] = useState("easy")
-  const [dark, toggleDarkMode] = useDarkMode()
+  const [selectedDifficulty, setSelectedDifficulty] = useState("easy");
+  const [dark, toggleDarkMode] = useDarkMode();
+  const [displayPreferences, setDisplayPreferences] = useState(false);
   const [bestTime, setBestTime] = useState(
     localStorage.getItem("bestTime") || 0
   );
 
+  // useEffect(() => {
+  //   fetch("https://opentdb.com/api.php?amount=10&difficulty=easy")
+  //     .then(res => res.json())
+  //     .then(data => console.log(data.results))
+  // }, [])
+
+  // implement true false question functionality
+  // implement a new page where the user can select question difficulty, category, and number of questions
+  // make it so that if the user begins the quiz without starting timer, timer begins automatically
+
   useEffect(() => {
-    if (startGame) {
-      fetch(`https://opentdb.com/api.php?amount=10&difficulty=${selectedDifficulty}&type=multiple`)
+    if (startGame && !displayPreferences) {
+      fetch(`https://opentdb.com/api.php?amount=10&difficulty=${selectedDifficulty.toLowerCase()}&type=multiple`)
         .then((res) => res.json())
         .then((data) => {
           setQuestions(
@@ -175,6 +187,7 @@ export default function App() {
   
   return (
     <main className = {dark ? "dark" : ""}>
+
       {startGame && (
         <div className="quiz">
           {displayTimer()}
@@ -184,17 +197,28 @@ export default function App() {
           {gameOverHandler()}
         </div>
       )}
+
       {!startGame && (
         <LoadingPage 
             dark = {dark}
             gameOver = {gameOver} 
             timeTaken={bestTime} 
-            begin={() => setStartGame(true)} 
+            displayPreferencesPage = {() => setDisplayPreferences(true)}
+        />)}
+
+        {displayPreferences && (
+          <SelectPreferences 
             difficulties = {["easy", "medium", "hard"]} 
             difficulty = {selectedDifficulty} 
-            setDifficulty = {(e) => setSelectedDifficulty(e.target.value)}
-        />)}
+            setDifficulty = {(e) => setSelectedDifficulty(e.target.value)} 
+            begin={() => {
+              setStartGame(true);
+              setDisplayPreferences(false);
+            }} />
+        )}
+
       <img className="yellow-blob-2" src= {yellowBlob} />
+      
       <div className="toggler">
         <p className="toggler--light">Light</p>
           <div className="toggler--slider" onClick={toggleDarkMode}>
@@ -202,6 +226,7 @@ export default function App() {
           </div>
         <p className="toggler--dark">Dark</p>
       </div>
+
     </main>
   );
 }
