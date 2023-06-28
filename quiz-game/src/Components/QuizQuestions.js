@@ -21,10 +21,7 @@ export default function QuizQuestions({checkAnswers, question, pick, id }) {
       key={index}
       id={index}
       check={checkAnswers}
-      className="answer-choice"
-    >
-      {he.decode(answer)}
-    </button>
+      className="answer-choice">{he.decode(answer)}</button>
   ));
 
   return (

@@ -11,15 +11,16 @@ export default function App() {
   const [gameOver, setGameOver] = useState(false);
   const [time, setTime] = useState(0);
   const [startTimer, setStartTimer] = useState(false);
+  const [selectedDifficulty, setSelectedDifficulty] = useState("easy")
   const [bestTime, setBestTime] = useState(
     localStorage.getItem("bestTime") || 0
   );
 
   useEffect(() => {
     if (startGame) {
-      fetch("https://opentdb.com/api.php?amount=10&type=multiple")
+      fetch(`https://opentdb.com/api.php?amount=10&difficulty=${selectedDifficulty}&type=multiple`)
         .then((res) => res.json())
-        .then((data) =>
+        .then((data) => {
           setQuestions(
             data.results.map((question) => {
               return {
@@ -33,7 +34,7 @@ export default function App() {
               };
             })
           )
-        );
+        });
       setBestTime(bestTime);
     }
   }, [startGame]);
@@ -44,31 +45,22 @@ export default function App() {
       timer = setInterval(() => {
         setTime((prevTime) => prevTime + 10);
       }, 10);
-    } else {
-      clearInterval(timer);
-    }
-
+    } 
+    else clearInterval(timer)
     return () => {
       clearInterval(timer);
     };
   }, [startTimer]);
 
   useEffect(() => {
-    if (
-      questions.every(
-        (question) => typeof question.chosen_answer !== "undefined"
-      )
-    ) {
+    if (questions.every( (question) => typeof question.chosen_answer !== "undefined")) {
       setGameOver(true);
     }
   }, [questions]);
 
   useEffect(() => {
     let playerScore = 0;
-    playerScore = questions.filter(
-      (question) =>
-        question.answers[question.chosen_answer] === question.correct_answer
-    ).length;
+    playerScore = questions.filter((question) => question.answers[question.chosen_answer] === question.correct_answer).length;
     setScore(playerScore);
     if (checkAnswers) {
       setStartTimer(false);
@@ -104,89 +96,101 @@ export default function App() {
   });
 
   function gameHandler() {
-    if (
-      questions.every(
-        (question) => typeof question.chosen_answer !== "undefined"
+    if (questions.every((question) => typeof question.chosen_answer !== "undefined")) setCheckAnswers(true)
+    else alert("You must answer all questions before checking your answers!");
+  }
+
+  function displayTimer(){
+    if (!checkAnswers){
+      return (
+        <div className="timer">
+          <span className="minutes">{("0" + Math.floor((time / 60000) % 60)).slice(-2)}:</span>
+          <span className="seconds">{("0" + Math.floor((time / 1000) % 60)).slice(-2)}:</span>
+          <span className="milliseconds">{("0" + ((time / 10) % 100)).slice(-2)}</span>
+        </div> 
       )
-    ) {
-      setCheckAnswers(true);
-    } else {
-      alert("You must answer all questions before checking your answers!");
     }
+    return null;
+  }
+
+  function displayTimerButtons(){
+    if (!checkAnswers){
+      return (
+        <div className="timer-btns">
+          {time === 0 && !startTimer && (
+            <button onClick={() => setStartTimer(true)}>Start Timer</button>
+          )}
+          {time !== 0 && (
+            <button onClick={() => setStartTimer(false)}>Stop Timer</button>
+          )}
+          {time !== 0 && (
+            <button onClick={() => setStartTimer(true)}>Resume Timer</button>
+          )}
+          {time !== 0 && (
+            <button onClick={() => setTime(0)}>Reset Timer</button>
+          )}
+        </div>
+      )
+    }
+    return null;
+  }
+
+  function gameOverHandler(){
+    if (checkAnswers){
+      return (
+        <div className="results">
+          <div className="player-score">{`You got ${score}/10 questions correct.`}</div>
+            <button
+              className="play-again-btn"
+              onClick={() => {
+                setStartGame(false);
+                setCheckAnswers(false);
+                setGameOver(false);
+                setScore(0);
+                setTime(0);
+                setStartTimer(false);
+              }}>
+              Play Again
+            </button>
+        </div>
+      )
+    }
+    return null;
+  }
+
+  function displayCheckButton(){
+    if (!checkAnswers){
+      return (
+        <button
+          className="check-answers-btn"
+          check={!gameOver}
+          onClick={gameHandler}>Check Answers</button>
+      )
+    }
+    return null;
   }
   
   return (
     <div>
       {startGame && (
         <div className="quiz">
-          {!checkAnswers && (
-            <div className="timer">
-              <span className="minutes">
-                {("0" + Math.floor((time / 60000) % 60)).slice(-2)}:
-              </span>
-              <span className="seconds">
-                {("0" + Math.floor((time / 1000) % 60)).slice(-2)}:
-              </span>
-              <span className="milliseconds">
-                {("0" + ((time / 10) % 100)).slice(-2)}
-              </span>
-            </div>
-          )}
-          {!checkAnswers && (
-            <div className="timer-btns">
-              {time === 0 && !startTimer && (
-                <button onClick={() => setStartTimer(true)}>Start Timer</button>
-              )}
-              {time !== 0 && (
-                <button onClick={() => setStartTimer(false)}>Stop Timer</button>
-              )}
-              {time !== 0 && (
-                <button onClick={() => setStartTimer(true)}>
-                  Resume Timer
-                </button>
-              )}
-              {time !== 0 && (
-                <button onClick={() => setTime(0)}>Reset Timer</button>
-              )}
-            </div>
-          )}
+          {displayTimer()}
+          {displayTimerButtons()}
           {questionsAndAnswers}
-          {!checkAnswers && (
-            <button
-              className="check-answers-btn"
-              check={!gameOver}
-              onClick={gameHandler}
-            >
-              Check Answers
-            </button>
-          )}
-          {checkAnswers && (
-            <div className="results">
-              <div className="player-score">{`You got ${score}/10 questions correct.`}</div>
-              <button
-                className="play-again-btn"
-                onClick={() => {
-                  setStartGame(false);
-                  setCheckAnswers(false);
-                  setGameOver(false);
-                  setScore(0);
-                  setTime(0);
-                  setStartTimer(false);
-                }}
-              >
-                Play Again
-              </button>
-            </div>
-          )}
+          {displayCheckButton()}
+          {gameOverHandler()}
         </div>
-      )}{" "}
-      {!startGame && (
-        <LoadingPage gameOver = {gameOver} timeTaken={bestTime} begin={() => setStartGame(true)} />
       )}
-      <img
-        className="yellow-blob-2"
-        src= {yellowBlob}
-      ></img>
+      {!startGame && (
+        <LoadingPage 
+            gameOver = {gameOver} 
+            timeTaken={bestTime} 
+            begin={() => setStartGame(true)} 
+            difficulties = {["easy", "medium", "hard"]} 
+            difficulty = {selectedDifficulty} 
+            setDifficulty = {(e) => setSelectedDifficulty(e.target.value)}
+        />)}
+      <img className="yellow-blob-2" src= {yellowBlob} />
     </div>
   );
 }
