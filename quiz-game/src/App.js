@@ -54,31 +54,15 @@ export default function App() {
 
   // make it so that if the user begins the quiz without starting timer, timer begins automatically
 
-  function determineTypeDisplay(){
-    let type = ""
-    switch (questionType){
-      case "Any Type" : type = ``; break;
-      case "Multiple Choice" : type = `multiple`; break;
-      case "True / False" : type = `boolean`; break;
-    }
-    return type;
-  }
-
   const handleInputChange = (setStateFunc) => {
     return (e) => {
       setStateFunc(e.target.value);
     };
   };
 
-  const API_URL = `https://opentdb.com/api.php?
-                        amount=${numQuestions}
-                        ${selectedCategory.value === 0 ? `` : `&category=${selectedCategory.value}`}
-                        &difficulty=${selectedDifficulty.toLowerCase()}
-                        &type=${determineTypeDisplay()}`
-
   useEffect(() => {
     if (startGame) {
-      fetch(API_URL)
+      fetch(`https://opentdb.com/api.php?amount=${numQuestions}${selectedCategory.value === 0 ? `` : `&category=${selectedCategory.value}`}&difficulty=${selectedDifficulty.toLowerCase()}&type=${questionType === "Any Type" ? `` : questionType === "Multiple Choice" ? `multiple` : `boolean`}`)
         .then((res) => res.json())
         .then((data) => {
           setQuestions(
@@ -97,7 +81,7 @@ export default function App() {
         });
       setBestTime(bestTime);
     }
-  }, [startGame, bestTime, selectedDifficulty, selectedCategory.value]);
+  }, [startGame, bestTime, selectedDifficulty, selectedCategory.value, numQuestions, questionType]);
 
   useEffect(() => {
     let timer;
@@ -200,7 +184,7 @@ export default function App() {
     if (checkAnswers){
       return (
         <div className="results">
-          <div className="player-score">{`You got ${score}/10 questions correct.`}</div>
+          <div className="player-score">{`You got ${score}/${numQuestions} questions correct.`}</div>
             <button
               className="play-again-btn"
               onClick={() => {
@@ -254,6 +238,7 @@ export default function App() {
 
         {displayPreferences && !startGame &&  (
           <SelectPreferences 
+            dark = {dark}
             questionType = {questionType}
             setQuestionType = {handleInputChange(setQuestionType)}
             numQuestions = {numQuestions}
