@@ -6,6 +6,35 @@ import useDarkMode from "./useDarkMode";
 import SelectPreferences from "./Components/SelectPreferences";
 
 export default function App() {
+
+  const categories = {
+    "Any Category" : 0,
+    "General Knowledge" : 9,
+    "Entertainment: Books" : 10,
+    "Entertainment: Film" : 11,
+    "Entertainment: Music" : 12,
+    "Entertainment: Musicals & Theatres" : 13,
+    "Entertainment: Television" : 14,
+    "Entertainment: Video Games" : 15,
+    "Entertainment: Board Games" : 16,
+    "Science & Nature" : 17,
+    "Science: Computers" : 18,
+    "Science: Mathematics" : 19,
+    "Mythology" : 20,
+    "Sports" : 21,
+    "Geography" : 22,
+    "History" : 23,
+    "Politics" : 24,
+    "Art" : 25,
+    "Celebrities" : 26,
+    "Animals" : 27,
+    "Vehicles" : 28,
+    "Entertainment: Comics" : 29,
+    "Science: Gadgets" : 30,
+    "Entertainment: Japanese Anime & Manga" : 31,
+    "Entertainment: Cartoon & Animations" : 32
+  }
+
   const [startGame, setStartGame] = useState(false);
   const [score, setScore] = useState(0);
   const [checkAnswers, setCheckAnswers] = useState(false);
@@ -16,15 +45,10 @@ export default function App() {
   const [selectedDifficulty, setSelectedDifficulty] = useState("easy");
   const [dark, toggleDarkMode] = useDarkMode();
   const [displayPreferences, setDisplayPreferences] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState({category: "Any Category", value: 0})
   const [bestTime, setBestTime] = useState(
     localStorage.getItem("bestTime") || 0
   );
-
-  // useEffect(() => {
-  //   fetch("https://opentdb.com/api.php?amount=10&difficulty=easy")
-  //     .then(res => res.json())
-  //     .then(data => console.log(data.results))
-  // }, [])
 
   // implement true false question functionality
   // implement a new page where the user can select question difficulty, category, and number of questions
@@ -32,7 +56,7 @@ export default function App() {
 
   useEffect(() => {
     if (startGame) {
-      fetch(`https://opentdb.com/api.php?amount=10&difficulty=${selectedDifficulty.toLowerCase()}&type=multiple`)
+      fetch(`https://opentdb.com/api.php?amount=10${selectedCategory.value === 0 ? `` : `&category=${selectedCategory.value}`}&difficulty=${selectedDifficulty.toLowerCase()}`)
         .then((res) => res.json())
         .then((data) => {
           setQuestions(
@@ -51,7 +75,7 @@ export default function App() {
         });
       setBestTime(bestTime);
     }
-  }, [startGame, bestTime, selectedDifficulty]);
+  }, [startGame, bestTime, selectedDifficulty, selectedCategory.value]);
 
   useEffect(() => {
     let timer;
@@ -208,6 +232,9 @@ export default function App() {
 
         {displayPreferences && !startGame &&  (
           <SelectPreferences 
+            categories = {categories}
+            selectedCategory = {selectedCategory}
+            setCategory = {(e) => setSelectedCategory({category: e.target.value, value: categories[e.target.value]})}
             difficulties = {["easy", "medium", "hard"]} 
             difficulty = {selectedDifficulty} 
             setDifficulty = {(e) => setSelectedDifficulty(e.target.value)} 
