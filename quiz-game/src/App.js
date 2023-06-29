@@ -46,17 +46,39 @@ export default function App() {
   const [dark, toggleDarkMode] = useDarkMode();
   const [displayPreferences, setDisplayPreferences] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState({category: "Any Category", value: 0})
+  const [numQuestions, setNumQuestions] = useState(5);
+  const [questionType, setQuestionType] = useState("Any Type")
   const [bestTime, setBestTime] = useState(
     localStorage.getItem("bestTime") || 0
   );
 
-  // implement true false question functionality
-  // implement a new page where the user can select question difficulty, category, and number of questions
   // make it so that if the user begins the quiz without starting timer, timer begins automatically
+
+  function determineTypeDisplay(){
+    let type = ""
+    switch (questionType){
+      case "Any Type" : type = ``; break;
+      case "Multiple Choice" : type = `multiple`; break;
+      case "True / False" : type = `boolean`; break;
+    }
+    return type;
+  }
+
+  const handleInputChange = (setStateFunc) => {
+    return (e) => {
+      setStateFunc(e.target.value);
+    };
+  };
+
+  const API_URL = `https://opentdb.com/api.php?
+                        amount=${numQuestions}
+                        ${selectedCategory.value === 0 ? `` : `&category=${selectedCategory.value}`}
+                        &difficulty=${selectedDifficulty.toLowerCase()}
+                        &type=${determineTypeDisplay()}`
 
   useEffect(() => {
     if (startGame) {
-      fetch(`https://opentdb.com/api.php?amount=10${selectedCategory.value === 0 ? `` : `&category=${selectedCategory.value}`}&difficulty=${selectedDifficulty.toLowerCase()}`)
+      fetch(API_URL)
         .then((res) => res.json())
         .then((data) => {
           setQuestions(
@@ -232,12 +254,16 @@ export default function App() {
 
         {displayPreferences && !startGame &&  (
           <SelectPreferences 
+            questionType = {questionType}
+            setQuestionType = {handleInputChange(setQuestionType)}
+            numQuestions = {numQuestions}
+            setNumQuestions = {handleInputChange(setNumQuestions)}
             categories = {categories}
             selectedCategory = {selectedCategory}
-            setCategory = {(e) => setSelectedCategory({category: e.target.value, value: categories[e.target.value]})}
+            setCategory= {handleInputChange((value) => setSelectedCategory({ category: value, value: categories[value] }))}
             difficulties = {["easy", "medium", "hard"]} 
             difficulty = {selectedDifficulty} 
-            setDifficulty = {(e) => setSelectedDifficulty(e.target.value)} 
+            setDifficulty = {handleInputChange(setSelectedDifficulty)} 
             begin={() => {
               setStartGame(true);
               setDisplayPreferences(false);
