@@ -31,7 +31,7 @@ export default function App() {
   // make it so that if the user begins the quiz without starting timer, timer begins automatically
 
   useEffect(() => {
-    if (startGame && !displayPreferences) {
+    if (startGame) {
       fetch(`https://opentdb.com/api.php?amount=10&difficulty=${selectedDifficulty.toLowerCase()}&type=multiple`)
         .then((res) => res.json())
         .then((data) => {
@@ -188,7 +188,7 @@ export default function App() {
   return (
     <main className = {dark ? "dark" : ""}>
 
-      {startGame && (
+      {startGame && !displayPreferences && (
         <div className="quiz">
           {displayTimer()}
           {displayTimerButtons()}
@@ -198,7 +198,7 @@ export default function App() {
         </div>
       )}
 
-      {!startGame && (
+      {!startGame && !displayPreferences && (
         <LoadingPage 
             dark = {dark}
             gameOver = {gameOver} 
@@ -206,7 +206,7 @@ export default function App() {
             displayPreferencesPage = {() => setDisplayPreferences(true)}
         />)}
 
-        {displayPreferences && (
+        {displayPreferences && !startGame &&  (
           <SelectPreferences 
             difficulties = {["easy", "medium", "hard"]} 
             difficulty = {selectedDifficulty} 
