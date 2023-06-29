@@ -1,5 +1,6 @@
 import React from "react";
 import he from "he";
+import PropTypes from 'prop-types';
 
 export default function QuizQuestions({checkAnswers, question, pick, id, dark }) {
   const styles = (answer_choice, index) => {
@@ -36,4 +37,16 @@ export default function QuizQuestions({checkAnswers, question, pick, id, dark })
       <div className="answers">{answer_choices}</div>
     </div>
   );
+}
+
+QuizQuestions.defaultProps = {
+  dark: false
+}
+
+QuizQuestions.propTypes = {
+  checkAnswers: PropTypes.bool.isRequired,
+  question: PropTypes.string.isRequired,
+  pick: PropTypes.func.isRequired,
+  id: PropTypes.number.isRequired,
+  dark: PropTypes.bool.isRequired
 }

@@ -1,6 +1,7 @@
 import React from "react";
 import blueBlob from "../Loading Page Images/blueBlob.png"
 import yellowBlob from "../Loading Page Images/yellowBlob.png"
+import PropTypes from 'prop-types';
 
 export default function LoadingPage({dark, timeTaken, displayPreferencesPage}) {
   return (
@@ -16,4 +17,14 @@ export default function LoadingPage({dark, timeTaken, displayPreferencesPage}) {
       <img className="blue-blob" src= {blueBlob} alt = ""/>
     </div>
   );
+}
+
+LoadingPage.defaultProps = {
+  dark: false,
+}
+
+LoadingPage.propTypes = {
+  dark: PropTypes.bool.isRequired,
+  timeTaken: PropTypes.number.isRequired,
+  displayPreferencesPage: PropTypes.func.isRequired
 }

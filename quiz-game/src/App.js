@@ -4,6 +4,7 @@ import QuizQuestions from "./Components/QuizQuestions";
 import yellowBlob from "./Loading Page Images/yellowBlob.png"
 import useDarkMode from "./useDarkMode";
 import SelectPreferences from "./Components/SelectPreferences";
+import Confetti from 'react-confetti'
 
 export default function App() {
 
@@ -75,7 +76,10 @@ export default function App() {
               };
             })
           )
-        });
+        })
+        .catch((err) => {
+          throw new Error(`There was an error when fetching questions: ${err}`)
+        })
       setBestTime(bestTime);
       setStartTimer(true);
     }
@@ -191,6 +195,8 @@ export default function App() {
   
   return (
     <main className = {dark ? "dark" : ""}>
+
+      {checkAnswers && score === numQuestions && <Confetti />}
 
       {startGame && !displayPreferences && (
         <div className="quiz">

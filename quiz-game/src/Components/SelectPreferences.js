@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types';
 
 export default function SelectPreferences({
   dark,
@@ -60,4 +61,28 @@ export default function SelectPreferences({
       </div>
     </div>
   )
+}
+
+SelectPreferences.defaultProps = {
+  dark: false,
+  difficulty: "easy",
+  difficulties: ["easy", "medium", "hard"],
+  selectedCategory: {category: "Any Category", value: 0},
+  numQuestions: 5,
+  questionType: "Any Type"
+}
+
+SelectPreferences.propTypes = {
+  dark: PropTypes.bool.isRequired,
+  difficulty: PropTypes.string.isRequired, 
+  difficulties: PropTypes.array.isRequired, 
+  setDifficulty: PropTypes.func.isRequired, 
+  begin: PropTypes.func.isRequired, 
+  categories: PropTypes.object.isRequired, 
+  selectedCategory: PropTypes.object.isRequired, 
+  setCategory: PropTypes.func.isRequired, 
+  numQuestions: PropTypes.number.isRequired, 
+  setNumQuestions: PropTypes.func.isRequired,
+  questionType: PropTypes.string.isRequired,
+  setQuestionType: PropTypes.func.isRequired
 }
