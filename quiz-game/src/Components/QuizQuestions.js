@@ -3,15 +3,21 @@ import he from "he";
 
 export default function QuizQuestions({checkAnswers, question, pick, id, dark }) {
   const styles = (answer_choice, index) => {
-    return checkAnswers
-      ? question.correct_answer === answer_choice
-        ? { backgroundColor: "#94D7A2", color: "#293264" }
-        : question.chosen_answer === index
-        ? { backgroundColor: "#F8BCBC", color: "#293264" }
-        : { backgroundColor: "#F5F7FB" }
-      : question.chosen_answer === index
-      ? { backgroundColor: "#D6DBF5" }
-      : { backgroundColor: "#F5F7FB" };
+    if (checkAnswers) {
+      if (question.correct_answer === answer_choice) { // correct answer
+        return { backgroundColor: "#94D7A2", color: "#293264" };
+      } else if (question.chosen_answer === index) { // chosen answer was wrong
+        return { backgroundColor: "#F8BCBC", color: "#293264" };
+      } else { // all answers apart from selected and correct will have default color
+        return { backgroundColor: "#F5F7FB" };
+      }
+    } else {
+      if (question.chosen_answer === index) { // background color when selected
+        return { backgroundColor: "#D6DBF5" };
+      } else { // default background color of all answer buttons
+        return { backgroundColor: "#F5F7FB" };
+      }
+    }
   };
 
   const answer_choices = question.answers.map((answer, index) => (

@@ -39,7 +39,6 @@ export default function App() {
   const [score, setScore] = useState(0);
   const [checkAnswers, setCheckAnswers] = useState(false);
   const [questions, setQuestions] = useState([]);
-  const [gameOver, setGameOver] = useState(false);
   const [time, setTime] = useState(0);
   const [startTimer, setStartTimer] = useState(false);
   const [selectedDifficulty, setSelectedDifficulty] = useState("easy");
@@ -49,10 +48,8 @@ export default function App() {
   const [numQuestions, setNumQuestions] = useState(5);
   const [questionType, setQuestionType] = useState("Any Type")
   const [bestTime, setBestTime] = useState(
-    localStorage.getItem("bestTime") || 0
+    JSON.parse(localStorage.getItem("bestTime")) || 0
   );
-
-  // make it so that if the user begins the quiz without starting timer, timer begins automatically
 
   const handleInputChange = (setStateFunc) => {
     return (e) => {
@@ -80,6 +77,7 @@ export default function App() {
           )
         });
       setBestTime(bestTime);
+      setStartTimer(true);
     }
   }, [startGame, bestTime, selectedDifficulty, selectedCategory.value, numQuestions, questionType]);
 
@@ -97,25 +95,12 @@ export default function App() {
   }, [startTimer]);
 
   useEffect(() => {
-    if (questions.every( (question) => typeof question.chosen_answer !== "undefined")) {
-      setGameOver(true);
-    }
-  }, [questions]);
-
-  useEffect(() => {
     let playerScore = 0;
     playerScore = questions.filter((question) => question.answers[question.chosen_answer] === question.correct_answer).length;
     setScore(playerScore);
     if (checkAnswers) {
       setStartTimer(false);
-      alert(
-        `You took ${Math.floor(time / 60000) % 60} minutes, ${
-          Math.floor(time / 1000) % 60
-        } seconds, and ${
-          Math.floor(time / 10) % 100
-        } milliseconds to finish the quiz.`
-      );
-      localStorage.setItem("bestTime", time / 1000);
+      localStorage.setItem("bestTime", JSON.stringify(time / 1000));
     }
   }, [checkAnswers, questions, time]);
 
@@ -141,43 +126,31 @@ export default function App() {
   });
 
   function gameHandler() {
-    if (questions.every((question) => typeof question.chosen_answer !== "undefined")) setCheckAnswers(true)
+    if (questions.every((question) => question.chosen_answer !== null)) setCheckAnswers(true)
     else alert("You must answer all questions before checking your answers!");
   }
 
   function displayTimer(){
-    if (!checkAnswers){
-      return (
-        <div className="timer">
-          <span className="minutes">{("0" + Math.floor((time / 60000) % 60)).slice(-2)}:</span>
-          <span className="seconds">{("0" + Math.floor((time / 1000) % 60)).slice(-2)}:</span>
-          <span className="milliseconds">{("0" + ((time / 10) % 100)).slice(-2)}</span>
-        </div> 
-      )
-    }
-    return null;
+    return (
+      <div className="timer">
+        <span className="minutes">{("0" + Math.floor((time / 60000) % 60)).slice(-2)}:</span>
+        <span className="seconds">{("0" + Math.floor((time / 1000) % 60)).slice(-2)}:</span>
+        <span className="milliseconds">{("0" + ((time / 10) % 100)).slice(-2)}</span>
+      </div> 
+    )
   }
 
   function displayTimerButtons(){
-    if (!checkAnswers){
-      return (
-        <div className="timer-btns">
-          {time === 0 && !startTimer && (
-            <button onClick={() => setStartTimer(true)}>Start Timer</button>
-          )}
-          {time !== 0 && (
-            <button onClick={() => setStartTimer(false)}>Stop Timer</button>
-          )}
-          {time !== 0 && (
-            <button onClick={() => setStartTimer(true)}>Resume Timer</button>
-          )}
-          {time !== 0 && (
-            <button onClick={() => setTime(0)}>Reset Timer</button>
-          )}
+    return (
+      <div className="timer-btns">
+        {time !== 0 && (
+          <button onClick={() => setStartTimer(false)} disabled = {checkAnswers}>Stop Timer</button>
+        )}
+        {time !== 0 && (
+          <button onClick={() => setStartTimer(true)} disabled = {checkAnswers}>Resume Timer</button>
+        )}
         </div>
-      )
-    }
-    return null;
+    )
   }
 
   function gameOverHandler(){
@@ -190,7 +163,6 @@ export default function App() {
               onClick={() => {
                 setStartGame(false);
                 setCheckAnswers(false);
-                setGameOver(false);
                 setScore(0);
                 setTime(0);
                 setStartTimer(false);
@@ -208,8 +180,10 @@ export default function App() {
       return (
         <button
           className="check-answers-btn"
-          check={!gameOver}
-          onClick={gameHandler}>Check Answers</button>
+          onClick = {gameHandler}
+        >
+          Check Answers
+        </button>
       )
     }
     return null;
@@ -231,7 +205,6 @@ export default function App() {
       {!startGame && !displayPreferences && (
         <LoadingPage 
             dark = {dark}
-            gameOver = {gameOver} 
             timeTaken={bestTime} 
             displayPreferencesPage = {() => setDisplayPreferences(true)}
         />)}
@@ -255,7 +228,7 @@ export default function App() {
             }} />
         )}
 
-      <img className="yellow-blob-2" src= {yellowBlob} />
+      <img className="yellow-blob-2" src= {yellowBlob} alt = ""/>
       
       <div className="toggler">
         <p className="toggler--light">Light</p>
