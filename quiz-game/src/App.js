@@ -50,13 +50,17 @@ export default function App() {
   const [questionType, setQuestionType] = useState("Any Type")
   const [bestTime, setBestTime] = useState(
     JSON.parse(localStorage.getItem("bestTime")) || 0
-  );
+  )
 
   const handleInputChange = (setStateFunc) => {
     return (e) => {
       setStateFunc(e.target.value);
     };
   };
+
+  useEffect(() => {
+    localStorage.setItem("bestTime", JSON.stringify(bestTime));
+  }, [bestTime])
 
   useEffect(() => {
     if (startGame) {
@@ -80,10 +84,9 @@ export default function App() {
         .catch((err) => {
           throw new Error(`There was an error when fetching questions: ${err}`)
         })
-      setBestTime(bestTime);
       setStartTimer(true);
     }
-  }, [startGame, bestTime, selectedDifficulty, selectedCategory.value, numQuestions, questionType]);
+  }, [startGame, selectedDifficulty, selectedCategory.value, numQuestions, questionType]);
 
   useEffect(() => {
     let timer;
@@ -104,9 +107,11 @@ export default function App() {
     setScore(playerScore);
     if (checkAnswers) {
       setStartTimer(false);
-      localStorage.setItem("bestTime", JSON.stringify(time / 1000));
+      if ((parseFloat(time) / 1000) < bestTime || bestTime === 0){
+        setBestTime(parseFloat(time) / 1000);
+      }
     }
-  }, [checkAnswers, questions, time]);
+  }, [checkAnswers, questions, time, bestTime]);
 
   function chooseAnswer(event, unique_question_id, unique_answer_id) {
     setQuestions((prevQuestions) => {
@@ -148,10 +153,10 @@ export default function App() {
     return (
       <div className="timer-btns">
         {time !== 0 && (
-          <button onClick={() => setStartTimer(false)} disabled = {checkAnswers}>Stop Timer</button>
+          <button onClick={() => setStartTimer(false)} disabled = {checkAnswers || !startTimer}>Stop Timer</button>
         )}
         {time !== 0 && (
-          <button onClick={() => setStartTimer(true)} disabled = {checkAnswers}>Resume Timer</button>
+          <button onClick={() => setStartTimer(true)} disabled = {checkAnswers || startTimer}>Resume Timer</button>
         )}
         </div>
     )
@@ -169,6 +174,8 @@ export default function App() {
                 setCheckAnswers(false);
                 setScore(0);
                 setTime(0);
+                const best = JSON.parse(localStorage.getItem("bestTime"));
+                setBestTime(best);
                 setStartTimer(false);
               }}>
               Play Again
